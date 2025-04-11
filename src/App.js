@@ -304,10 +304,44 @@ const HPSitePrintROICalculator = () => {
 
   // Function to send data to CRM API (placeholder)
   const sendDataToCRM = () => {
-    // Calculate ROI first to ensure we have the values
-    calculateROI();
+    const data = calculateROI(); // Calculate ROI first to ensure we have the values
 
-    console.log("Sending data to CRM API");
+    const roiDataObject = {
+      CUSTOMER_INFORMATION: {
+        Company_Name: customerInfo.companyName,
+        Contact_Name: customerInfo.contactName,
+        Zip_Code: customerInfo.zipCode,
+        Email: customerInfo.email,
+        Phone: customerInfo.phone || "Not provided",
+      },
+      Analysis_SETUP: {
+        Analysis_Type: analysisOptions.analysisType,
+        Layout_Type: analysisOptions.layoutType,
+        Measurement_Unit: analysisOptions.measurementUnit,
+        Ownership_Model: analysisOptions.ownershipModel,
+        Project_Size: analysisOptions.projectSize,
+      },
+      TRADITIONAL_SETUP: {
+        Number_of_Workers: traditionalInfo.workerCount,
+        Hourly_Rate: `$${traditionalInfo.hourlyRate}`,
+        Productivity_Rate: `${traditionalInfo.productivity}`,
+        Typical_Rework_Percentage: `${traditionalInfo.reworkPercentage}`,
+      },
+      Generated_On: new Date().toLocaleString(),
+    };
+
+    // Convert the object to a properly formatted JSON string
+    const roiDataText = JSON.stringify(roiDataObject);
+
+    // Encode the JSON string for URL inclusion
+    const encodedRoiData = encodeURIComponent(roiDataText);
+
+    // Construct the full URL with the roidata parameter
+    const apiUrl = `https://www.zohoapis.com/crm/v7/functions/rts_roi_v2026/actions/execute?auth_type=apikey&zapikey=1003.fbdcd3c87c9b3217f06707a5bdf03400.058c11de15744d85b481b76aa7b2f8bf&roidata=${encodedRoiData}`;
+
+    // Create an image object to trigger the URL (this is a way to make a request without waiting for response)
+    const img = new Image();
+    img.src = apiUrl;
 
     // Move to the next slide immediately
     setCurrentSlide(currentSlide + 1);
@@ -317,9 +351,8 @@ const HPSitePrintROICalculator = () => {
   const nextSlide = () => {
     if (currentSlide < 4) {
       if (currentSlide === 2) {
-        // Calculate ROI directly instead of going through sendDataToCRM
-        calculateROI();
-        setCurrentSlide(3);
+        sendDataToCRM();
+        return; // sendDataToZoho handles the navigation
       } else {
         setCurrentSlide(currentSlide + 1);
 
