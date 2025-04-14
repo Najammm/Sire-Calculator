@@ -304,8 +304,9 @@ const HPSitePrintROICalculator = () => {
 
   // Function to send data to CRM API (placeholder)
   const sendDataToCRM = () => {
-    const data = calculateROI(); // Calculate ROI first to ensure we have the values
+    calculateROI(); // Calculate ROI first to ensure we have the values
 
+    // Create a structured object for ROI Data
     const roiDataObject = {
       CUSTOMER_INFORMATION: {
         Company_Name: customerInfo.companyName,
@@ -319,7 +320,7 @@ const HPSitePrintROICalculator = () => {
         Layout_Type: analysisOptions.layoutType,
         Measurement_Unit: analysisOptions.measurementUnit,
         Ownership_Model: analysisOptions.ownershipModel,
-        Project_Size: analysisOptions.projectSize,
+        Project_Size: traditionalInfo.projectSize,
       },
       TRADITIONAL_SETUP: {
         Number_of_Workers: traditionalInfo.workerCount,
@@ -327,21 +328,23 @@ const HPSitePrintROICalculator = () => {
         Productivity_Rate: `${traditionalInfo.productivity}`,
         Typical_Rework_Percentage: `${traditionalInfo.reworkPercentage}`,
       },
+      ROI_CALCULATOR: {
+        Square_Feet: siteprintInfo?.productivity,
+        Workers: siteprintInfo?.workerCount,
+        Manhours_Saved: benefitData?.selectedReduction,
+        Days: siteprintInfo?.estimatedLayoutDays,
+      },
       Generated_On: new Date().toLocaleString(),
     };
 
-    // Convert the object to a properly formatted JSON string
-    const roiDataText = JSON.stringify(roiDataObject);
-
-    // Encode the JSON string for URL inclusion
-    const encodedRoiData = encodeURIComponent(roiDataText);
-
     // Construct the full URL with the roidata parameter
-    const apiUrl = `https://www.zohoapis.com/crm/v7/functions/rts_roi_v2026/actions/execute?auth_type=apikey&zapikey=1003.fbdcd3c87c9b3217f06707a5bdf03400.058c11de15744d85b481b76aa7b2f8bf&roidata=${encodedRoiData}`;
+    // const apiUrl = `https://www.zohoapis.com/crm/v7/functions/rts_roi_v2026/actions/execute?auth_type=apikey&zapikey=1003.fbdcd3c87c9b3217f06707a5bdf03400.058c11de15744d85b481b76aa7b2f8bf&roidata=${roiDataObject}`;
+
+    console.log(roiDataObject);
 
     // Create an image object to trigger the URL (this is a way to make a request without waiting for response)
-    const img = new Image();
-    img.src = apiUrl;
+    // const img = new Image();
+    // img.src = apiUrl;
 
     // Move to the next slide immediately
     setCurrentSlide(currentSlide + 1);
